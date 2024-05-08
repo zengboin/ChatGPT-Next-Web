@@ -7,7 +7,7 @@ import { useAccessStore } from "../store";
 import Locale from "../locales";
 
 import BotIcon from "../icons/bot.svg";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getClientConfig } from "../config/client";
 
 export function AuthPage() {
@@ -22,6 +22,20 @@ export function AuthPage() {
       access.accessCode = "";
     });
   }; // Reset access code to empty string
+  const [email, setEmail] = useState(""); // Email input value
+  const [password, setPassword] = useState(""); // Password input value
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  const getArcTokenAndRefreshToken = () => {
+    accessStore.arcLogin(email, password);
+  }; // Get arc token and refresh token
 
   useEffect(() => {
     if (getClientConfig()?.isApp) {
@@ -36,19 +50,24 @@ export function AuthPage() {
         <BotIcon />
       </div>
 
-      <div className={styles["auth-title"]}>{Locale.Auth.Title}</div>
-      <div className={styles["auth-tips"]}>{Locale.Auth.Tips}</div>
+      <div className={styles["auth-title"]}>Login Arc</div>
+      <div className={styles["auth-tips"]}>
+        Use your Arc brower account to login.
+      </div>
 
       <input
         className={styles["auth-input"]}
+        type="text"
+        placeholder="Email"
+        value={email}
+        onChange={handleEmailChange}
+      />
+      <input
+        className={styles["auth-input"]}
         type="password"
-        placeholder={Locale.Auth.Input}
-        value={accessStore.accessCode}
-        onChange={(e) => {
-          accessStore.update(
-            (access) => (access.accessCode = e.currentTarget.value),
-          );
-        }}
+        placeholder="Password"
+        value={password}
+        onChange={handlePasswordChange}
       />
       {!accessStore.hideUserApiKey ? (
         <>
@@ -82,12 +101,14 @@ export function AuthPage() {
         <IconButton
           text={Locale.Auth.Confirm}
           type="primary"
-          onClick={goChat}
+          onClick={() => {
+            getArcTokenAndRefreshToken();
+            goChat();
+          }}
         />
         <IconButton
           text={Locale.Auth.Later}
           onClick={() => {
-            resetAccessCode();
             goHome();
           }}
         />
