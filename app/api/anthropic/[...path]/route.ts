@@ -83,10 +83,9 @@ const serverConfig = getServerSideConfig();
 async function request(req: NextRequest) {
   const controller = new AbortController();
 
-  let authHeaderName = "x-api-key";
+  let authHeaderName = "Authorization";
   let authValue =
-    req.headers.get(authHeaderName) ||
-    req.headers.get("Authorization")?.replaceAll("Bearer ", "").trim() ||
+    req.headers.get(authHeaderName)?.trim() ||
     serverConfig.anthropicApiKey ||
     "";
 
@@ -113,7 +112,7 @@ async function request(req: NextRequest) {
     10 * 60 * 1000,
   );
 
-  const fetchUrl = `${baseUrl}${path}`;
+  const fetchUrl = `${baseUrl}`;
 
   const fetchOptions: RequestInit = {
     headers: {
