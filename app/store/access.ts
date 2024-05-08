@@ -45,6 +45,7 @@ const DEFAULT_ACCESS_STATE = {
   // arc
   arcToken: "",
   arcRefreshToken: "",
+  arcTokenExpire: 0,
 
   // server config
   needCode: true,
@@ -118,6 +119,29 @@ export const useAccessStore = createPersistStore(
           set(() => ({
             arcToken: res.idToken,
             arcRefreshToken: res.refreshToken,
+            arcTokenExpire: Date.now() + (parseInt(res.expiresIn) - 300) * 1000,
+          }));
+        });
+    },
+    arcGetToken() {
+      const refreshToken = get()["arcRefreshToken"];
+      fetch("/api/arc/token", {
+        method: "post",
+        body: JSON.stringify({
+          grantType: "refresh_token",
+          refreshToken,
+        }),
+        headers: {
+          ...getHeaders(),
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          set(() => ({
+            arcToken: res.access_token,
+            arcRefreshToken: res.refresh_token,
+            arcTokenExpire:
+              Date.now() + (parseInt(res.expires_in) - 300) * 1000,
           }));
         });
     },

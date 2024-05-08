@@ -168,6 +168,12 @@ function Screen() {
   );
 }
 
+function isTokenExpired() {
+  const tokenExpired = useAccessStore.getState().arcTokenExpire;
+  if (!tokenExpired) return true;
+  return Date.now() > tokenExpired;
+}
+
 export function useLoadData() {
   const config = useAppConfig();
 
@@ -196,6 +202,19 @@ export function Home() {
   useEffect(() => {
     console.log("[Config] got config from build time", getClientConfig());
     useAccessStore.getState().fetch();
+    const checkTokenExpiration = () => {
+      if (isTokenExpired()) {
+        useAccessStore.getState().arcGetToken();
+      }
+    };
+    setTimeout(checkTokenExpiration, 0);
+
+    const intervalId = setInterval(checkTokenExpiration, 60000);
+
+    return () => {
+      // 组件卸载时清除定时器
+      clearInterval(intervalId);
+    };
   }, []);
 
   if (!useHasHydrated()) {

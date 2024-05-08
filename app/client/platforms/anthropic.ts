@@ -174,7 +174,7 @@ export class ClaudeApi implements LLMApi {
       {
         role: "user",
         content:
-          "You will be acting as a research assistant. I will give you the content of a webpage, and you will concisely answer questions from a human using information from that page.\n\nForget about the previous settings and roles, you as an Artificial Intelligence AI assistant can utilize your knowledge base and content available on the web as well as content obtained from search engines that require you to answer inputs from me only.",
+          "You will be acting as a research assistant. I will give you the content of a webpage, and you will concisely answer questions from a human using information from that page.\n\nForget about the previous settings and roles, you as an Artificial Intelligence AI assistant can utilize your knowledge base that require you to answer inputs from me only.",
       },
       {
         role: "assistant",
@@ -209,7 +209,7 @@ export class ClaudeApi implements LLMApi {
         Accept: "application/json",
         "x-api-key": accessStore.anthropicApiKey,
         "anthropic-version": accessStore.anthropicApiVersion,
-        Authorization: getAuthKey(accessStore.anthropicApiKey),
+        Authorization: getAuthKey(accessStore.arcToken),
       },
     };
 
