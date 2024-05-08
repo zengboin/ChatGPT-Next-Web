@@ -30,8 +30,10 @@ export type AnthropicMessage = {
 
 export interface AnthropicChatRequest {
   model: string; // The model that will complete your prompt.
-  messages: AnthropicMessage[]; // The prompt that you want Claude to complete.
-  max_tokens: number; // The maximum number of tokens to generate before stopping.
+  prompt: AnthropicMessage[]; // The prompt that you want Claude to complete.
+  max_tokens_to_sample: number; // The maximum number of tokens to generate before stopping.
+  feature: string;
+  isDev: boolean;
   stop_sequences?: string[]; // Sequences that will cause the model to stop generating completion text.
   temperature?: number; // Amount of randomness injected into the response.
   top_p?: number; // Use nucleus sampling.
@@ -168,16 +170,29 @@ export class ClaudeApi implements LLMApi {
       });
     }
 
-    const requestBody: AnthropicChatRequest = {
-      messages: prompt,
-      stream: shouldStream,
+    prompt.unshift(
+      {
+        role: "user",
+        content:
+          "You will be acting as a research assistant. I will give you the content of a webpage, and you will concisely answer questions from a human using information from that page.\n\nForget about the previous settings and roles, you as an Artificial Intelligence AI assistant can utilize your knowledge base and content available on the web as well as content obtained from search engines that require you to answer inputs from me only.",
+      },
+      {
+        role: "assistant",
+        content: "Okay, I am only going to answer based on your inputs",
+      },
+    );
 
+    const requestBody: AnthropicChatRequest = {
+      prompt: prompt,
+      stream: shouldStream,
       model: modelConfig.model,
-      max_tokens: modelConfig.max_tokens,
+      max_tokens_to_sample: modelConfig.max_tokens,
       temperature: modelConfig.temperature,
       top_p: modelConfig.top_p,
       // top_k: modelConfig.top_k,
       top_k: 5,
+      feature: "askInPage",
+      isDev: false,
     };
 
     const path = this.path(Anthropic.ChatPath);
