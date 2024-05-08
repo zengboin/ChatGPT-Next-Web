@@ -42,6 +42,10 @@ const DEFAULT_ACCESS_STATE = {
   anthropicApiVersion: "2023-06-01",
   anthropicUrl: "",
 
+  // arc
+  arcToken: "",
+  arcRefreshToken: "",
+
   // server config
   needCode: true,
   hideUserApiKey: false,
@@ -78,6 +82,10 @@ export const useAccessStore = createPersistStore(
       return ensure(get(), ["anthropicApiKey"]);
     },
 
+    isValidArc() {
+      return ensure(get(), ["arcToken", "arcRefreshToken"]);
+    },
+
     isAuthorized() {
       this.fetch();
 
@@ -87,9 +95,31 @@ export const useAccessStore = createPersistStore(
         this.isValidAzure() ||
         this.isValidGoogle() ||
         this.isValidAnthropic() ||
+        this.isValidArc() ||
         !this.enabledAccessControl() ||
         (this.enabledAccessControl() && ensure(get(), ["accessCode"]))
       );
+    },
+    arcLogin(email: string, password: string) {
+      fetch("/api/arc/verifyPassword", {
+        method: "post",
+        body: JSON.stringify({
+          email,
+          password,
+          clientType: "CLIENT_TYPE_IOS",
+          returnSecureToken: true,
+        }),
+        headers: {
+          ...getHeaders(),
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          set(() => ({
+            arcToken: res.idToken,
+            arcRefreshToken: res.refreshToken,
+          }));
+        });
     },
     fetch() {
       if (fetchState > 0 || getClientConfig()?.buildMode === "export") return;
