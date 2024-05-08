@@ -207,8 +207,8 @@ export class ClaudeApi implements LLMApi {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "x-api-key": accessStore.anthropicApiKey,
-        "anthropic-version": accessStore.anthropicApiVersion,
+        // "x-api-key": accessStore.anthropicApiKey,
+        // "anthropic-version": accessStore.anthropicApiVersion,
         Authorization: getAuthKey(accessStore.arcToken),
       },
     };
