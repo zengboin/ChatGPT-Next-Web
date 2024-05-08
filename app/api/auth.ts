@@ -38,6 +38,14 @@ export function auth(req: NextRequest, modelProvider: ModelProvider) {
   console.log("[Auth] hashed access code:", hashedCode);
   console.log("[User IP] ", getIP(req));
   console.log("[Time] ", new Date().toLocaleString());
+  console.log("[Api Key] ", apiKey);
+
+  if (!apiKey) {
+    return {
+      error: true,
+      msg: "You need login arc account first.",
+    };
+  }
 
   if (serverConfig.needCode && !serverConfig.codes.has(hashedCode) && !apiKey) {
     return {
@@ -46,12 +54,12 @@ export function auth(req: NextRequest, modelProvider: ModelProvider) {
     };
   }
 
-  if (serverConfig.hideUserApiKey && !!apiKey) {
-    return {
-      error: true,
-      msg: "you are not allowed to access with your own api key",
-    };
-  }
+  // if (serverConfig.hideUserApiKey && !!apiKey) {
+  //   return {
+  //     error: true,
+  //     msg: "you are not allowed to access with your own api key",
+  //   };
+  // }
 
   // if user does not provide an api key, inject system api key
   if (!apiKey) {
